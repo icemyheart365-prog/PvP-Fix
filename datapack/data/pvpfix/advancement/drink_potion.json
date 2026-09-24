@@ -1,0 +1,15 @@
+{
+  "criteria": {
+    "drink_potion": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:potion"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "pvpfix:drink_potion"
+  }
+}

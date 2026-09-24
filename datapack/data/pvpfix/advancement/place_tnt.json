@@ -1,0 +1,22 @@
+{
+  "criteria": {
+    "place_tnt": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "location_check",
+            "predicate": {
+              "block": {
+                "blocks": "minecraft:tnt"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "function": "pvpfix:instant_tnt"
+  }
+}
