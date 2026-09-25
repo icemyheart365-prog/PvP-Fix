@@ -1,0 +1,42 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build datapack ZIP
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          ZIP_NAME="PvP-Fix-1.21.11-datapack-v${VERSION}.zip"
+
+          cd datapack
+          zip -r "../${ZIP_NAME}" .
+          cd ..
+
+          echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+          ZIP_NAME: ${{ env.ZIP_NAME }}
+        run: |
+          gh release create "$VERSION" \
+            "$ZIP_NAME" \
+            --title "PvP-Fix ${VERSION}" \
+            --notes "Automated release for PvP-Fix ${VERSION}."
