@@ -30,13 +30,32 @@ jobs:
 
           echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
 
-      - name: Create GitHub Release
+      - name: Read tag message
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          NOTES="$(git tag -l --format='%(contents)' "$VERSION")"
+
+          if [ -z "$NOTES" ]; then
+            echo "::error::The tag does not contain an annotated tag message."
+            exit 1
+          fi
+
+          {
+            echo "NOTES<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Create GitHub Pre-release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.ref_name }}
           ZIP_NAME: ${{ env.ZIP_NAME }}
+          NOTES: ${{ env.NOTES }}
         run: |
           gh release create "$VERSION" \
             "$ZIP_NAME" \
             --title "PvP-Fix ${VERSION}" \
-            --notes "Automated release for PvP-Fix ${VERSION}."
+            --notes "$NOTES" \
+            --prerelease
