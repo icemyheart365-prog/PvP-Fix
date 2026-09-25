@@ -30,20 +30,35 @@ jobs:
 
           echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
 
-      - name: Read tag message
+      - name: Read tag and commit information
         env:
           VERSION: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
-          NOTES="$(git tag -l --format='%(contents)' "$VERSION")"
+          TAG_NOTES="$(git tag -l --format='%(contents)' "$VERSION")"
+          COMMIT_SUBJECT="$(git show -s --format='%s' "$COMMIT_SHA")"
+          COMMIT_BODY="$(git show -s --format='%b' "$COMMIT_SHA")"
 
-          if [ -z "$NOTES" ]; then
+          if [ -z "$TAG_NOTES" ]; then
             echo "::error::The tag does not contain an annotated tag message."
             exit 1
           fi
 
           {
             echo "NOTES<<EOF"
-            echo "$NOTES"
+            echo "$TAG_NOTES"
+            echo
+            echo "---"
+            echo
+            echo "### Commit"
+            echo
+            echo "**$COMMIT_SUBJECT**"
+
+            if [ -n "$COMMIT_BODY" ]; then
+              echo
+              echo "$COMMIT_BODY"
+            fi
+
             echo "EOF"
           } >> "$GITHUB_ENV"
 
