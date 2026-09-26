@@ -1,16 +1,22 @@
 {
-  "pack": {
-    "min_format": [
-      94,
-      1
-    ],
-    "max_format": [
-      94,
-      1
-    ],
-    "description": {
-      "text": "PvP Fix • 1.21.11",
-      "color": "gold"
+    "pack": {
+        "min_format": [
+            94,
+            1
+        ],
+        "max_format": [
+            94,
+            1
+        ],
+        "description": [
+            {
+                "text": "PvP Fix • 1.21.11",
+                "color": "gold"
+            },
+            {
+                "text": "\nBy IceMyHeart_365",
+                "color": "gray"
+            }
+        ]
     }
-  }
 }
