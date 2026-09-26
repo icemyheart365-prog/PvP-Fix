@@ -30,47 +30,39 @@ jobs:
 
           echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
 
-      - name: Read tag and commit information
+      - name: Generate release notes
         env:
           VERSION: ${{ github.ref_name }}
-          COMMIT_SHA: ${{ github.sha }}
         run: |
           TAG_NOTES="$(git tag -l --format='%(contents)' "$VERSION")"
-          COMMIT_SUBJECT="$(git show -s --format='%s' "$COMMIT_SHA")"
-          COMMIT_BODY="$(git show -s --format='%b' "$COMMIT_SHA")"
 
           if [ -z "$TAG_NOTES" ]; then
             echo "::error::The tag does not contain an annotated tag message."
             exit 1
           fi
 
+          TAG_TITLE="$(printf '%s\n' "$TAG_NOTES" | sed -n '1p')"
+          TAG_BODY="$(printf '%s\n' "$TAG_NOTES" | sed '1d')"
+
           {
-            echo "NOTES<<EOF"
-            echo "$TAG_NOTES"
+            echo "## ${VERSION} – Update Log"
             echo
-            echo "---"
-            echo
-            echo "### Commit"
-            echo
-            echo "**$COMMIT_SUBJECT**"
+            echo "**${TAG_TITLE}**"
 
-            if [ -n "$COMMIT_BODY" ]; then
+            if [ -n "$TAG_BODY" ]; then
               echo
-              echo "$COMMIT_BODY"
+              echo "$TAG_BODY"
             fi
-
-            echo "EOF"
-          } >> "$GITHUB_ENV"
+          } > release-notes.md
 
       - name: Create GitHub Pre-release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.ref_name }}
           ZIP_NAME: ${{ env.ZIP_NAME }}
-          NOTES: ${{ env.NOTES }}
         run: |
           gh release create "$VERSION" \
             "$ZIP_NAME" \
             --title "PvP-Fix ${VERSION}" \
-            --notes "$NOTES" \
+            --notes-file release-notes.md \
             --prerelease
